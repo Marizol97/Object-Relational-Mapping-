@@ -3,7 +3,7 @@
 
 ## Table of Content 
 1. [Description](#description)
-2. [Contribution](#contribution)
+2. [Technologies](#technologies)
 3. [Link](#link)
 
 <a name = "description"></a>
@@ -21,6 +21,10 @@ product_id,and tag_id
 ## Installation
 npm install
 
+<a name = "technologies"></a>
+## Technologies
+Express.js, Sequelize, MySQL, JavaScript 
+
 <a name = "link"></a>
 ## Link
-[Demo]()
+[Demo](https://drive.google.com/file/d/1gueb3QnK9O6ItuJJ_TfFajU3LdYW9Lbm/view)
