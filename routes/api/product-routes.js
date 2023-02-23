@@ -7,12 +7,50 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 router.get('/', (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
+  Product.findAll({
+		include: [
+			{
+				model: Category,
+				attributes: ['id', 'category_name']
+			},
+			{
+				model: Tag,
+				attributes: ['id', 'tag_name'],
+				through: ProductTag,
+				as: 'product_tags'
+			}
+		]
+	})
+		.then(data => res.json(data))
+		.catch(err => {
+			res.status(401).json(err);
+		});
 });
 
 // get one product
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  const findId = req.params.id
+  Product.findOne({
+		where: { id: findId },
+		include: [
+			{
+				model: Category,
+				attributes: ['id', 'category_name']
+			},
+			{
+				model: Tag,
+				attributes: ['id', 'tag_name'],
+				through: ProductTag,
+				as: 'product_tags'
+			}
+		]
+	})
+		.then(data => res.json(data))
+		.catch(err => {
+			res.status(401).json(err);
+		});
 });
 
 // create new product
@@ -49,7 +87,14 @@ router.post('/', (req, res) => {
 
 // update product
 router.put('/:id', (req, res) => {
-  // update product data
+  // update product data with format:
+  // {
+  //   "product_name": "House of the Dragon",
+  //   "price": 20,
+  //   "stock": 100
+  // }
+
+
   Product.update(req.body, {
     where: {
       id: req.params.id,
@@ -63,6 +108,12 @@ router.put('/:id', (req, res) => {
       // get list of current tag_ids
       const productTagIds = productTags.map(({ tag_id }) => tag_id);
       // create filtered list of new tag_ids
+      
+      if (req.body['tag_ids'] == null) {
+        res.json({"result": "success"})
+        return;
+      }
+      
       const newProductTags = req.body.tagIds
         .filter((tag_id) => !productTagIds.includes(tag_id))
         .map((tag_id) => {
@@ -82,7 +133,7 @@ router.put('/:id', (req, res) => {
         ProductTag.bulkCreate(newProductTags),
       ]);
     })
-    .then((updatedProductTags) => res.json(updatedProductTags))
+    .then((updatedProductTags) => res.json({"result": "success"}))
     .catch((err) => {
       // console.log(err);
       res.status(400).json(err);
@@ -91,6 +142,17 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   // delete one product by its `id` value
+  const deleteId = req.params.id
+  Product.destroy({
+		where: { id: deleteId }
+	}).then(data => {
+		if (!data) {
+			res.status(404).json({ Message: `No product found with id ${deleteId}` });
+			return;
+		}
+    
+		res.json(data);
+	});
 });
 
 module.exports = router;
